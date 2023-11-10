@@ -23,7 +23,7 @@ defmodule Csv.MixProject do
     [
       {:credo, "~> 1.7.1", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.1.1", only: [:dev, :test], runtime: false},
-      {:mox, "~> 1.1.0", only: :test}
+      {:nimble_csv, "~> 1.1"}
     ]
   end
 end
