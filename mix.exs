@@ -21,9 +21,9 @@ defmodule Csv.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:credo, "~> 1.7.1"},
-      {:mix_test_watch, "~> 1.1.1"},
-      {:mox, "~> 1.1.0"}
+      {:credo, "~> 1.7.1", only: [:dev, :test], runtime: false},
+      {:mix_test_watch, "~> 1.1.1", only: [:dev, :test], runtime: false},
+      {:mox, "~> 1.1.0", only: :test}
     ]
   end
 end
