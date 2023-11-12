@@ -56,4 +56,18 @@ defmodule Csv.SpecTest do
              [2, "Alex Martinez"]
            ]
   end
+
+  test "a csv must define a function for a virtual field" do
+    error_message = """
+    Key `full_name` not found. Add a function to \
+    `EmployeeCsvWithMissingVirtualColumn.full_name/1` \
+    to create a virtual column. Otherwise, ensure that \
+    the configured `Csv.Spec` and provided data are \
+    accurate: `#{inspect(List.first(@employees))}`
+    """
+
+    assert_raise ArgumentError, error_message, fn ->
+      EmployeeCsvWithMissingVirtualColumn.rows(@employees)
+    end
+  end
 end

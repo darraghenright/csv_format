@@ -50,4 +50,17 @@ defmodule EmployeeCsvWithVirtualColumn do
   end
 end
 
+defmodule EmployeeCsvWithMissingVirtualColumn do
+  @moduledoc """
+  CSV that does not declare a function
+  for virtual column `full_name` which
+  would be required at runtime.
+  """
+  use Csv.Spec,
+    columns: [
+      id: "#",
+      full_name: "Full name"
+    ]
+end
+
 ExUnit.start()
