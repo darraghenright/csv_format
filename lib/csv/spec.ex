@@ -2,28 +2,27 @@ defmodule Csv.Spec do
   @moduledoc false
 
   defmacro __using__(opts) do
-    columns = Keyword.get(opts, :columns, [])
-
-    {fields, titles} = Enum.unzip(columns)
+    {fields, titles} =
+      opts
+      |> Keyword.get(:columns, [])
+      |> Enum.unzip()
 
     quote bind_quoted: [fields: fields, titles: titles] do
-      def rows(items) do
-        rows(items, unquote(fields), unquote(titles))
-      end
-
-      defp rows(_items, [], []) do
-        []
-      end
-
-      defp rows(items, fields, titles) do
-        rows =
-          for item <- items do
-            for field <- unquote(fields) do
-              apply(__MODULE__, field, [item])
+      if fields == [] do
+        def rows(items) do
+          []
+        end
+      else
+        def rows(items) do
+          rows =
+            for item <- items do
+              for field <- unquote(fields) do
+                apply(__MODULE__, field, [item])
+              end
             end
-          end
 
-        [titles | rows]
+          [unquote(titles) | rows]
+        end
       end
 
       for field <- fields do
