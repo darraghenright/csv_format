@@ -8,20 +8,26 @@ defmodule Csv.Spec do
       |> Enum.unzip()
 
     quote bind_quoted: [fields: fields, titles: titles] do
-      if fields == [] do
-        def rows(items) when is_list(items) do
-          []
-        end
-      else
-        def rows(items) when is_list(items) do
-          rows =
-            for item <- items do
-              for field <- unquote(fields) do
-                apply(__MODULE__, field, [item])
-              end
-            end
+      spec_module = __MODULE__
 
-          [unquote(titles) | rows]
+      defmodule Builder do
+        @moduledoc false
+
+        if fields == [] do
+          def new(items) when is_list(items) do
+            []
+          end
+        else
+          def new(items) when is_list(items) do
+            rows =
+              for item <- items do
+                for field <- unquote(fields) do
+                  apply(unquote(spec_module), field, [item])
+                end
+              end
+
+            [unquote(titles) | rows]
+          end
         end
       end
 

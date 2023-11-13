@@ -20,15 +20,15 @@ defmodule Csv.SpecTest do
   ]
 
   test "a csv that declares no columns should return an empty list" do
-    assert ZeroColumnCsv.rows(@employees) == []
+    assert ZeroColumnCsv.Builder.new(@employees) == []
   end
 
   test "a csv that declares no columns and takes an empty list should return an empty list" do
-    assert ZeroColumnCsv.rows([]) == []
+    assert ZeroColumnCsv.Builder.new([]) == []
   end
 
   test "a csv that takes an empty list should return headers" do
-    assert EmployeeCsv.rows([]) == [["#", "Role", "First name", "Last name"]]
+    assert EmployeeCsv.Builder.new([]) == [["#", "Role", "First name", "Last name"]]
   end
 
   test "a csv should return declared rows in order" do
@@ -38,11 +38,11 @@ defmodule Csv.SpecTest do
       [2, "Marketing Manager", "Alex", "Martinez"]
     ]
 
-    assert EmployeeCsv.rows(@employees) == rows
+    assert EmployeeCsv.Builder.new(@employees) == rows
   end
 
   test "a csv should use custom column" do
-    assert EmployeeCsvWithCustomColumn.rows(@employees) == [
+    assert EmployeeCsvWithCustomColumn.Builder.new(@employees) == [
              ["#", "Date of Birth"],
              [1, "15/05/1990"],
              [2, "28/11/1985"]
@@ -50,7 +50,7 @@ defmodule Csv.SpecTest do
   end
 
   test "a csv should use virtual column" do
-    assert EmployeeCsvWithVirtualColumn.rows(@employees) == [
+    assert EmployeeCsvWithVirtualColumn.Builder.new(@employees) == [
              ["#", "Full name"],
              [1, "Emma Johnson"],
              [2, "Alex Martinez"]
@@ -67,7 +67,7 @@ defmodule Csv.SpecTest do
     """
 
     assert_raise ArgumentError, error_message, fn ->
-      EmployeeCsvWithMissingVirtualColumn.rows(@employees)
+      EmployeeCsvWithMissingVirtualColumn.Builder.new(@employees)
     end
   end
 end
