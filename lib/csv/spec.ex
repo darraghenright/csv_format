@@ -45,7 +45,7 @@ defmodule Csv.Spec do
               """
           end
 
-          item[unquote(field)]
+          item.unquote(field)
         end
 
         defoverridable [{field, 1}]

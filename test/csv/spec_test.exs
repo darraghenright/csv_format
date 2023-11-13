@@ -5,16 +5,16 @@ defmodule Csv.SpecTest do
   @employees [
     %{
       id: 1,
+      date_of_birth: Date.from_iso8601!("1990-05-15"),
       first_name: "Emma",
       last_name: "Johnson",
-      date_of_birth: Date.from_iso8601!("1990-05-15"),
       role: "Software Engineer"
     },
     %{
       id: 2,
+      date_of_birth: Date.from_iso8601!("1985-11-28"),
       first_name: "Alex",
       last_name: "Martinez",
-      date_of_birth: Date.from_iso8601!("1985-11-28"),
       role: "Marketing Manager"
     }
   ]
@@ -39,6 +39,18 @@ defmodule Csv.SpecTest do
     ]
 
     assert EmployeeCsv.Builder.new(@employees) == rows
+  end
+
+  test "a csv should return declared rows in order from structs" do
+    employees = Enum.map(@employees, &struct!(Employee, &1))
+
+    rows = [
+      ["#", "Role", "First name", "Last name"],
+      [1, "Software Engineer", "Emma", "Johnson"],
+      [2, "Marketing Manager", "Alex", "Martinez"]
+    ]
+
+    assert EmployeeCsv.Builder.new(employees) == rows
   end
 
   test "a csv should use custom column" do

@@ -1,3 +1,8 @@
+defmodule Employee do
+  @moduledoc false
+  defstruct [:id, :date_of_birth, :first_name, :last_name, :role]
+end
+
 defmodule ZeroColumnCsv do
   @moduledoc """
   CSV with no defined columns.
