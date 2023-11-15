@@ -7,21 +7,21 @@ defmodule Csv.Spec do
       |> Keyword.get(:columns, [])
       |> Enum.unzip()
 
-    parser = Keyword.fetch!(opts, :parser)
+    dumper = Keyword.fetch!(opts, :dumper)
 
     quote bind_quoted: [
+            dumper: dumper,
             fields: fields,
-            parser: parser,
             titles: titles
           ] do
       spec_module = __MODULE__
 
       defmodule Builder do
         @moduledoc false
+        @dumper dumper
         @fields fields
-        @header [titles] |> parser.dump_to_iodata() |> hd()
+        @header [titles] |> dumper.dump_to_iodata() |> hd()
         @module spec_module
-        @parser parser
 
         if fields == [] do
           def new(items) when is_list(items) do
@@ -32,7 +32,7 @@ defmodule Csv.Spec do
             rows =
               items
               |> Stream.map(&row/1)
-              |> @parser.dump_to_stream()
+              |> @dumper.dump_to_stream()
               |> Enum.to_list()
 
             [@header | rows]
