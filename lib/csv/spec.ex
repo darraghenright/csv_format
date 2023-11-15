@@ -7,11 +7,21 @@ defmodule Csv.Spec do
       |> Keyword.get(:columns, [])
       |> Enum.unzip()
 
-    quote bind_quoted: [fields: fields, titles: titles] do
+    parser = Keyword.fetch!(opts, :parser)
+
+    quote bind_quoted: [
+            fields: fields,
+            parser: parser,
+            titles: titles
+          ] do
       spec_module = __MODULE__
 
       defmodule Builder do
         @moduledoc false
+        @fields fields
+        @header [titles] |> parser.dump_to_iodata() |> hd()
+        @module spec_module
+        @parser parser
 
         if fields == [] do
           def new(items) when is_list(items) do
@@ -20,28 +30,34 @@ defmodule Csv.Spec do
         else
           def new(items) when is_list(items) do
             rows =
-              for item <- items do
-                for field <- unquote(fields) do
-                  apply(unquote(spec_module), field, [item])
-                end
-              end
+              items
+              |> Stream.map(&row/1)
+              |> @parser.dump_to_stream()
+              |> Enum.to_list()
 
-            [unquote(titles) | rows]
+            [@header | rows]
+          end
+        end
+
+        defp row(item) do
+          for field <- @fields do
+            apply(@module, field, [item])
           end
         end
       end
 
       for field <- fields do
         @spec unquote(field)(%{atom() => any()}) :: term()
+        @doc false
         def unquote(field)(item) do
           unless Map.has_key?(item, unquote(field)) do
             raise ArgumentError,
               message: """
-              Key `#{unquote(field)}` not found. Add a function to \
-              `#{inspect(__MODULE__)}.#{unquote(field)}/1` \
+              Key `#{unquote(field)}` not found. Add a function \
+              named `#{inspect(__MODULE__)}.#{unquote(field)}/1` \
               to create a virtual column. Otherwise, ensure \
-              that the configured `Csv.Spec` and provided \
-              data are accurate: `#{inspect(item)}`
+              that `Csv.Spec` is configured correctly, or the \
+              data you provided is accurate: `#{inspect(item)}`
               """
           end
 

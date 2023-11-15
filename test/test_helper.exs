@@ -7,12 +7,14 @@ defmodule ZeroColumnCsv do
   @moduledoc """
   CSV with no defined columns.
   """
-  use Csv.Spec
+  use Csv.Spec,
+    parser: NimbleCSV.RFC4180
 end
 
 defmodule EmployeeCsv do
   @moduledoc false
   use Csv.Spec,
+    parser: NimbleCSV.RFC4180,
     columns: [
       id: "#",
       role: "Role",
@@ -24,6 +26,7 @@ end
 defmodule EmployeeCsvWithCustomColumn do
   @moduledoc false
   use Csv.Spec,
+    parser: NimbleCSV.RFC4180,
     columns: [
       id: "#",
       date_of_birth: "Date of Birth"
@@ -41,6 +44,7 @@ end
 defmodule EmployeeCsvWithVirtualColumn do
   @moduledoc false
   use Csv.Spec,
+    parser: NimbleCSV.RFC4180,
     columns: [
       id: "#",
       full_name: "Full name"
@@ -62,6 +66,7 @@ defmodule EmployeeCsvWithMissingVirtualColumn do
   would be required at runtime.
   """
   use Csv.Spec,
+    parser: NimbleCSV.RFC4180,
     columns: [
       id: "#",
       full_name: "Full name"

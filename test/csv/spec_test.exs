@@ -1,6 +1,7 @@
 defmodule Csv.SpecTest do
   @moduledoc false
   use ExUnit.Case
+  import IO, only: [iodata_to_binary: 1]
 
   @employees [
     %{
@@ -19,63 +20,73 @@ defmodule Csv.SpecTest do
     }
   ]
 
-  test "a csv that declares no columns should return an empty list" do
-    assert ZeroColumnCsv.Builder.new(@employees) == []
+  test "a spec that declares no columns should build an empty csv" do
+    csv = ZeroColumnCsv.Builder.new(@employees)
+
+    assert iodata_to_binary(csv) == ""
   end
 
-  test "a csv that declares no columns and takes an empty list should return an empty list" do
-    assert ZeroColumnCsv.Builder.new([]) == []
+  test "a spec that declares no columns and no data should build an empty csv" do
+    csv = ZeroColumnCsv.Builder.new([])
+
+    assert iodata_to_binary(csv) == ""
   end
 
-  test "a csv that takes an empty list should return headers" do
-    assert EmployeeCsv.Builder.new([]) == [["#", "Role", "First name", "Last name"]]
+  test "a spec that takes no data should build headers only" do
+    csv = EmployeeCsv.Builder.new([])
+
+    assert iodata_to_binary(csv) == "#,Role,First name,Last name\r\n"
   end
 
-  test "a csv should return declared rows in order" do
-    rows = [
-      ["#", "Role", "First name", "Last name"],
-      [1, "Software Engineer", "Emma", "Johnson"],
-      [2, "Marketing Manager", "Alex", "Martinez"]
-    ]
+  test "a spec should build a csv with columns in order" do
+    csv = EmployeeCsv.Builder.new(@employees)
 
-    assert EmployeeCsv.Builder.new(@employees) == rows
+    assert iodata_to_binary(csv) == """
+           #,Role,First name,Last name\r\n\
+           1,Software Engineer,Emma,Johnson\r\n\
+           2,Marketing Manager,Alex,Martinez\r\n\
+           """
   end
 
-  test "a csv should return declared rows in order from structs" do
-    employees = Enum.map(@employees, &struct!(Employee, &1))
+  test "a spec should build a csv from structs" do
+    employees = Enum.map(@employees, &struct(Employee, &1))
 
-    rows = [
-      ["#", "Role", "First name", "Last name"],
-      [1, "Software Engineer", "Emma", "Johnson"],
-      [2, "Marketing Manager", "Alex", "Martinez"]
-    ]
+    csv = EmployeeCsv.Builder.new(employees)
 
-    assert EmployeeCsv.Builder.new(employees) == rows
+    assert iodata_to_binary(csv) == """
+           #,Role,First name,Last name\r\n\
+           1,Software Engineer,Emma,Johnson\r\n\
+           2,Marketing Manager,Alex,Martinez\r\n\
+           """
   end
 
-  test "a csv should use custom column" do
-    assert EmployeeCsvWithCustomColumn.Builder.new(@employees) == [
-             ["#", "Date of Birth"],
-             [1, "15/05/1990"],
-             [2, "28/11/1985"]
-           ]
+  test "a spec can customise a field with a function" do
+    csv = EmployeeCsvWithCustomColumn.Builder.new(@employees)
+
+    assert iodata_to_binary(csv) == """
+           #,Date of Birth\r\n\
+           1,15/05/1990\r\n\
+           2,28/11/1985\r\n\
+           """
   end
 
-  test "a csv should use virtual column" do
-    assert EmployeeCsvWithVirtualColumn.Builder.new(@employees) == [
-             ["#", "Full name"],
-             [1, "Emma Johnson"],
-             [2, "Alex Martinez"]
-           ]
+  test "a spec can implement a virtual column" do
+    csv = EmployeeCsvWithVirtualColumn.Builder.new(@employees)
+
+    assert iodata_to_binary(csv) == """
+           #,Full name\r\n\
+           1,Emma Johnson\r\n\
+           2,Alex Martinez\r\n\
+           """
   end
 
-  test "a csv must define a function for a virtual field" do
+  test "a spec should raise if a virtual column is not implemented" do
     error_message = """
-    Key `full_name` not found. Add a function to \
+    Key `full_name` not found. Add a function named \
     `EmployeeCsvWithMissingVirtualColumn.full_name/1` \
     to create a virtual column. Otherwise, ensure that \
-    the configured `Csv.Spec` and provided data are \
-    accurate: `#{inspect(List.first(@employees))}`
+    `Csv.Spec` is configured correctly, or the data you \
+    provided is accurate: `#{inspect(List.first(@employees))}`
     """
 
     assert_raise ArgumentError, error_message, fn ->
