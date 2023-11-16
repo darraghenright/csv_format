@@ -53,18 +53,16 @@ defmodule CsvFormat.Spec do
         @spec unquote(field)(%{atom() => term()}) :: term()
         # credo:disable-for-next-line
         def unquote(field)(item) do
-          unless Map.has_key?(item, unquote(field)) do
-            raise ArgumentError,
-              message: """
-              Key `#{unquote(field)}` not found. Add a function \
-              named `#{inspect(__MODULE__)}.#{unquote(field)}/1` \
-              to create a virtual column. Otherwise, ensure \
-              that `CsvFormat.Spec` is configured correctly, or the \
-              data you provided is accurate: `#{inspect(item)}`
-              """
-          end
-
           item.unquote(field)
+        rescue
+          e in KeyError ->
+            message = """
+            Key `#{e.key}` not found. Add a function named `#{inspect(__MODULE__)}.#{e.key}/1` \
+            to create a virtual column. Otherwise, ensure that `CsvFormat.Spec` is configured \
+            correctly, or the data you provided is accurate: `#{inspect(e.term)}`
+            """
+
+            reraise KeyError, [message: message], __STACKTRACE__
         end
 
         defoverridable [{field, 1}]

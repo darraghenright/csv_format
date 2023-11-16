@@ -83,15 +83,15 @@ defmodule CsvFormat.SpecTest do
   test "a spec should raise if a virtual column is not implemented" do
     employee = List.first(@employees)
 
-    error_message = """
+    message = """
     Key `full_name` not found. Add a function named \
     `EmployeeCsvWithMissingVirtualColumn.full_name/1` \
     to create a virtual column. Otherwise, ensure that \
-    `CsvFormat.Spec` is configured correctly, or the data you \
-    provided is accurate: `#{inspect(employee)}`
+    `CsvFormat.Spec` is configured correctly, or the data \
+    you provided is accurate: `#{inspect(employee)}`
     """
 
-    assert_raise ArgumentError, error_message, fn ->
+    assert_raise KeyError, message, fn ->
       EmployeeCsvWithMissingVirtualColumn.Builder.new(@employees)
     end
   end
