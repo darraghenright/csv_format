@@ -95,4 +95,16 @@ defmodule CsvFormat.SpecTest do
       EmployeeCsvWithMissingVirtualColumn.Builder.new(@employees)
     end
   end
+
+  test "a spec should raise if the data is not valid" do
+    message = """
+    Key `id` not found. Add a function named `EmployeeCsv.id/1` to create \
+    a virtual column. Otherwise, ensure that `CsvFormat.Spec` is configured \
+    correctly, or the data you provided is accurate: `"not_valid"`
+    """
+
+    assert_raise KeyError, message, fn ->
+      EmployeeCsv.Builder.new(["not_valid"])
+    end
+  end
 end
