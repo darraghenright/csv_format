@@ -1,6 +1,6 @@
-defmodule Csv.SpecTest do
+defmodule CsvFormat.SpecTest do
   @moduledoc false
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import IO, only: [iodata_to_binary: 1]
 
   @employees [
@@ -81,12 +81,14 @@ defmodule Csv.SpecTest do
   end
 
   test "a spec should raise if a virtual column is not implemented" do
+    employee = List.first(@employees)
+
     error_message = """
     Key `full_name` not found. Add a function named \
     `EmployeeCsvWithMissingVirtualColumn.full_name/1` \
     to create a virtual column. Otherwise, ensure that \
-    `Csv.Spec` is configured correctly, or the data you \
-    provided is accurate: `#{inspect(List.first(@employees))}`
+    `CsvFormat.Spec` is configured correctly, or the data you \
+    provided is accurate: `#{inspect(employee)}`
     """
 
     assert_raise ArgumentError, error_message, fn ->

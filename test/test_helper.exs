@@ -7,13 +7,13 @@ defmodule ZeroColumnCsv do
   @moduledoc """
   CSV with no defined columns.
   """
-  use Csv.Spec,
+  use CsvFormat.Spec,
     dumper: NimbleCSV.RFC4180
 end
 
 defmodule EmployeeCsv do
   @moduledoc false
-  use Csv.Spec,
+  use CsvFormat.Spec,
     dumper: NimbleCSV.RFC4180,
     columns: [
       id: "#",
@@ -25,7 +25,7 @@ end
 
 defmodule EmployeeCsvWithCustomColumn do
   @moduledoc false
-  use Csv.Spec,
+  use CsvFormat.Spec,
     dumper: NimbleCSV.RFC4180,
     columns: [
       id: "#",
@@ -36,6 +36,7 @@ defmodule EmployeeCsvWithCustomColumn do
   Customise the formatting of
   an employee's date of birth.
   """
+  @spec date_of_birth(%{atom() => any()}) :: String.t()
   def date_of_birth(employee) do
     Calendar.strftime(employee.date_of_birth, "%d/%m/%Y")
   end
@@ -43,7 +44,7 @@ end
 
 defmodule EmployeeCsvWithVirtualColumn do
   @moduledoc false
-  use Csv.Spec,
+  use CsvFormat.Spec,
     dumper: NimbleCSV.RFC4180,
     columns: [
       id: "#",
@@ -54,6 +55,7 @@ defmodule EmployeeCsvWithVirtualColumn do
   Declare a custom value for a column
   that does not exist in source data.
   """
+  @spec full_name(%{atom() => any()}) :: String.t()
   def full_name(employee) do
     "#{employee.first_name} #{employee.last_name}"
   end
@@ -65,7 +67,7 @@ defmodule EmployeeCsvWithMissingVirtualColumn do
   for virtual column `full_name` which
   would be required at runtime.
   """
-  use Csv.Spec,
+  use CsvFormat.Spec,
     dumper: NimbleCSV.RFC4180,
     columns: [
       id: "#",

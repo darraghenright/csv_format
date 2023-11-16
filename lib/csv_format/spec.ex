@@ -1,4 +1,4 @@
-defmodule Csv.Spec do
+defmodule CsvFormat.Spec do
   @moduledoc false
 
   defmacro __using__(opts) do
@@ -24,10 +24,12 @@ defmodule Csv.Spec do
         @module spec_module
 
         if fields == [] do
+          @spec new([%{atom() => term()}]) :: []
           def new(items) when is_list(items) do
             []
           end
         else
+          @spec new([%{atom() => term()}]) :: [iodata()]
           def new(items) when is_list(items) do
             rows =
               items
@@ -47,8 +49,9 @@ defmodule Csv.Spec do
       end
 
       for field <- fields do
-        @spec unquote(field)(%{atom() => any()}) :: term()
         @doc false
+        @spec unquote(field)(%{atom() => term()}) :: term()
+        # credo:disable-for-next-line
         def unquote(field)(item) do
           unless Map.has_key?(item, unquote(field)) do
             raise ArgumentError,
@@ -56,7 +59,7 @@ defmodule Csv.Spec do
               Key `#{unquote(field)}` not found. Add a function \
               named `#{inspect(__MODULE__)}.#{unquote(field)}/1` \
               to create a virtual column. Otherwise, ensure \
-              that `Csv.Spec` is configured correctly, or the \
+              that `CsvFormat.Spec` is configured correctly, or the \
               data you provided is accurate: `#{inspect(item)}`
               """
           end
