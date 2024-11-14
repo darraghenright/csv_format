@@ -32,10 +32,23 @@ defmodule CsvFormat.SpecTest do
     assert iodata_to_binary(csv) == ""
   end
 
-  test "a spec that takes no data should build headers only" do
+  test "a spec that takes no data should build header only" do
     csv = EmployeeCsv.Builder.new([])
 
     assert iodata_to_binary(csv) == "#,Role,First name,Last name\r\n"
+  end
+
+  test "a spec should not output header when `skip_header` is false" do
+    csv_without_rows = EmployeeCsvWithoutHeader.Builder.new([])
+
+    assert iodata_to_binary(csv_without_rows) == ""
+
+    csv_with_rows = EmployeeCsvWithoutHeader.Builder.new(@employees)
+
+    assert iodata_to_binary(csv_with_rows) == """
+           1,Software Engineer,Emma,Johnson\r\n\
+           2,Marketing Manager,Alex,Martinez\r\n\
+           """
   end
 
   test "a spec should build a csv with columns in order" do

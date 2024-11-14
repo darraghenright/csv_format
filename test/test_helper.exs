@@ -23,6 +23,19 @@ defmodule EmployeeCsv do
     ]
 end
 
+defmodule EmployeeCsvWithoutHeader do
+  @moduledoc false
+  use CsvFormat.Spec,
+    dumper: NimbleCSV.RFC4180,
+    skip_header: true,
+    columns: [
+      id: "#",
+      role: "Role",
+      first_name: "First name",
+      last_name: "Last name"
+    ]
+end
+
 defmodule EmployeeCsvWithCustomColumn do
   @moduledoc false
   use CsvFormat.Spec,
