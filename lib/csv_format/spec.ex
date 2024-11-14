@@ -8,10 +8,12 @@ defmodule CsvFormat.Spec do
       |> Enum.unzip()
 
     dumper = Keyword.fetch!(opts, :dumper)
+    skip_header = Keyword.get(opts, :skip_header, false)
 
     quote bind_quoted: [
             dumper: dumper,
             fields: fields,
+            skip_header: skip_header,
             titles: titles
           ] do
       spec_module = __MODULE__
@@ -22,6 +24,7 @@ defmodule CsvFormat.Spec do
         @fields fields
         @header [titles] |> dumper.dump_to_iodata() |> hd()
         @module spec_module
+        @skip_header skip_header
 
         if fields == [] do
           @spec new([%{atom() => term()}]) :: []
@@ -37,7 +40,11 @@ defmodule CsvFormat.Spec do
               |> @dumper.dump_to_stream()
               |> Enum.to_list()
 
-            [@header | rows]
+            if @skip_header do
+              rows
+            else
+              [@header | rows]
+            end
           end
         end
 
